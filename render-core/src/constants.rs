@@ -1,0 +1,13 @@
+use crate::types::RAYTRACINGSHADERTYPE_COUNT;
+use crate::types::RENDERQUEUETYPE_COUNT;
+use crate::types::RENDERSHADERTYPE_COUNT;
+
+pub const MAX_RENDER_TARGET_COUNT: usize = 8;
+pub const MAX_VERTEX_ELEMENTS: usize = 16;
+pub const MAX_VERTEX_STREAMS: usize = 16;
+pub const MAX_SHADER_PARAMETERS: usize = 4;
+pub const MAX_SAMPLER_BINDINGS: usize = 16;
+pub const MAX_SHADER_ARGUMENTS: usize = 4;
+pub const MAX_SHADER_TYPE: usize = RENDERSHADERTYPE_COUNT;
+pub const MAX_RAY_TRACING_SHADER_TYPE: usize = RAYTRACINGSHADERTYPE_COUNT;
+pub const MAX_RENDER_QUEUES: usize = RENDERQUEUETYPE_COUNT;
