@@ -18,6 +18,8 @@ pub struct RenderResourceHandle {
     kind: RenderResourceType,
     cookie: RenderResourceCookie,
 }
+unsafe impl Send for RenderResourceHandle {}
+unsafe impl Sync for RenderResourceHandle {}
 
 impl Default for RenderResourceHandle {
     #[inline(always)]

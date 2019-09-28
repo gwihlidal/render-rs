@@ -25,9 +25,8 @@ fn system_initialize() {
             )
             .unwrap();
         assert!(rs_write.is_initialized());
-        let registry = Arc::clone(&rs_write.get_registry().unwrap());
-        let registry_read = registry.read().unwrap();
-        assert!(registry_read.len() > 0);
+        let registry = &rs_write.get_registry().unwrap();
+        assert!(registry.len() > 0);
     }
 
     // Release
@@ -52,16 +51,14 @@ fn system_multi_harness() {
 #[test]
 fn system_enumerate() {
     let harness = common::SystemHarness::new();
+    let registry = &harness.render_system.get_registry().unwrap();
 
-    let mut rs_write = harness.render_system.write().unwrap();
-    let registry = Arc::clone(&rs_write.get_registry().unwrap());
-    let registry_read = registry.read().unwrap();
+    assert!(registry.len() > 0);
 
-    assert!(registry_read.len() > 0);
-
-    for entry in registry_read.iter() {
+    for entry in registry.iter() {
         let device_info = Arc::new(
-            rs_write
+            harness
+                .render_system
                 .enumerate_devices(&entry, false, None, None)
                 .unwrap(),
         );
@@ -73,25 +70,21 @@ fn system_enumerate() {
 #[test]
 fn system_devices() {
     let harness = common::SystemHarness::new();
+    let registry = &harness.render_system.get_registry().unwrap();
+    assert!(registry.len() > 0);
 
-    let mut rs_write = harness.render_system.write().unwrap();
-    let registry = Arc::clone(&rs_write.get_registry().unwrap());
-    let registry_read = registry.read().unwrap();
-
-    assert!(registry_read.len() > 0);
-
-    for entry in registry_read.iter() {
+    for entry in registry.iter() {
         let device_info = Arc::new(
-            rs_write
+            harness.render_system
                 .enumerate_devices(&entry, false, None, None)
                 .unwrap(),
         );
         let info_list = Arc::clone(&device_info);
         assert!(info_list.len() > 0);
         for info in &*info_list {
-            assert!(rs_write.create_device(&entry, info.device_index).is_ok());
-            assert!(rs_write.get_device(&entry, info.device_index).is_ok());
-            assert!(rs_write.destroy_device(&entry, info.device_index).is_ok());
+            assert!(harness.render_system.create_device(&entry, info.device_index).is_ok());
+            assert!(harness.render_system.get_device(&entry, info.device_index).is_ok());
+            assert!(harness.render_system.destroy_device(&entry, info.device_index).is_ok());
         }
     }
 }

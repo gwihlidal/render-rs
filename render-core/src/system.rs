@@ -11,10 +11,11 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, RwLock};
+use std::cell::RefCell;
 
 pub struct RenderSystem {
-    handles: Arc<RwLock<RenderResourceHandleAllocator>>,
-    registry: Arc<RwLock<Vec<RenderBackendRegistry>>>,
+    handles: RefCell<RenderResourceHandleAllocator>,
+    registry: Vec<RenderBackendRegistry>,
     libraries: Vec<Box<Library>>,
     modules: Vec<Box<dyn RenderBackendModule>>,
     names: Arc<RwLock<HashMap<RenderResourceHandle, Cow<'static, str>>>>,
@@ -31,8 +32,8 @@ impl Drop for RenderSystem {
 impl RenderSystem {
     pub fn new() -> Self {
         RenderSystem {
-            handles: Arc::new(RwLock::new(RenderResourceHandleAllocator::new())),
-            registry: Arc::new(RwLock::new(Vec::new())),
+            handles: RefCell::new(RenderResourceHandleAllocator::new()),
+            registry: Vec::new(),
             libraries: Vec::new(),
             modules: Vec::new(),
             names: Arc::new(RwLock::new(HashMap::new())),
@@ -58,16 +59,13 @@ impl RenderSystem {
             return Err(Error::backend("no render backend modules found"));
         }
 
-        let registry_arc = Arc::clone(&self.registry);
-        let mut registry_write = registry_arc.write().unwrap();
-
         // Create matching backends
         for module in &self.modules {
             let module_api = module.api();
             if module_api.len() > 0 {
                 for settings in params.iter() {
                     if settings.api.len() == 0 || settings.api == module_api {
-                        registry_write.push(RenderBackendRegistry {
+                        self.registry.push(RenderBackendRegistry {
                             settings: settings.clone(),
                             backend: Arc::new(RwLock::new(module.create())),
                         });
@@ -76,7 +74,7 @@ impl RenderSystem {
             }
         }
 
-        if registry_write.len() == 0 {
+        if self.registry.len() == 0 {
             return Err(Error::backend(format!(
                 "no render backend was created - available: {:?}",
                 self.modules
@@ -87,28 +85,23 @@ impl RenderSystem {
     }
 
     pub fn release(&mut self) -> Result<()> {
-        let registry_arc = Arc::clone(&self.registry);
-        let mut registry_write = registry_arc.write().unwrap();
-        registry_write.clear();
+        self.registry.clear();
         self.modules.clear();
         self.libraries.clear();
         Ok(())
     }
 
     pub fn is_initialized(&self) -> bool {
-        let registry_arc = Arc::clone(&self.registry);
-        let registry_read = registry_arc.read().unwrap();
-        registry_read.len() > 0
+        self.registry.len() > 0
     }
 
-    pub fn get_registry(&self) -> Result<Arc<RwLock<Vec<RenderBackendRegistry>>>> {
+    pub fn get_registry(&self) -> Result<&Vec<RenderBackendRegistry>> {
         if !self.is_initialized() {
             Err(Error::backend(
                 "render system must be initialized before calling get_registry",
             ))
         } else {
-            let registry_arc = Arc::clone(&self.registry);
-            Ok(registry_arc)
+            Ok(&self.registry)
         }
     }
 
@@ -158,7 +151,9 @@ impl RenderSystem {
             let backend_arc = Arc::clone(&registry.backend);
             let mut backend_write = backend_arc.write().unwrap();
             backend_write.create_device(device_index)?;
-            Ok(backend_write.get_device(device_index)?)
+            Ok(Arc::new(RwLock::new(
+                backend_write.get_device(device_index)?,
+            )))
         }
     }
 
@@ -182,7 +177,7 @@ impl RenderSystem {
         &self,
         registry: &RenderBackendRegistry,
         device_index: RenderDeviceId,
-    ) -> Result<Arc<RwLock<Option<Box<dyn RenderDevice>>>>> {
+    ) -> Result<Option<Box<dyn RenderDevice>>> {
         if !self.is_initialized() {
             Err(Error::backend(
                 "render system must be initialized before calling get_device",
@@ -195,14 +190,13 @@ impl RenderSystem {
     }
 
     // Handle Management
-    pub fn get_handle_allocator(&self) -> Result<Arc<RwLock<RenderResourceHandleAllocator>>> {
+    pub fn get_handle_allocator(&self) -> Result<&RefCell<RenderResourceHandleAllocator>> {
         if !self.is_initialized() {
             Err(Error::backend(
                 "render system must be initialized before calling get_handle_allocator",
             ))
         } else {
-            let lock = Arc::clone(&self.handles);
-            Ok(lock)
+            Ok(&self.handles)
         }
     }
 
@@ -212,9 +206,7 @@ impl RenderSystem {
                 "render system must be initialized before calling is_handle_valid",
             ))
         } else {
-            let lock = Arc::clone(&self.handles);
-            let read = lock.read().unwrap();
-            Ok(read.is_valid(&handle))
+            Ok(self.handles.borrow().is_valid(&handle))
         }
     }
 
@@ -366,11 +358,7 @@ impl RenderSystem {
                     "resource name must be valid when calling create_handle",
                 ))
             } else {
-                let handle = {
-                    let lock = Arc::clone(&self.handles);
-                    let mut write = lock.write().unwrap();
-                    write.allocate(resource_type)
-                };
+                let handle = self.handles.borrow_mut().allocate(resource_type);
 
                 let lock = Arc::clone(&self.names);
                 let mut write = lock.write().unwrap();
@@ -392,9 +380,7 @@ impl RenderSystem {
                 ))
             } else {
                 {
-                    let lock = Arc::clone(&self.handles);
-                    let mut write = lock.write().unwrap();
-                    write.release(handle);
+                    self.handles.borrow_mut().release(handle);
                 }
 
                 let lock = Arc::clone(&self.names);

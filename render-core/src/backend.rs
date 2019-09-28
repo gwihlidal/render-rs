@@ -62,10 +62,7 @@ pub trait RenderBackend: fmt::Debug {
 
     fn create_device(&mut self, device_id: RenderDeviceId) -> Result<()>;
     fn destroy_device(&mut self, device_id: RenderDeviceId) -> Result<()>;
-    fn get_device(
-        &self,
-        device_id: RenderDeviceId,
-    ) -> Result<Arc<RwLock<Option<Box<dyn RenderDevice>>>>>;
+    fn get_device(&self, device_id: RenderDeviceId) -> Result<Option<Box<dyn RenderDevice>>>;
 
     fn begin_debug_capture(&self, name: &str) -> Result<()>;
     fn finish_debug_capture(&self) -> Result<()>;
