@@ -1,4 +1,6 @@
 [workspace]
 members = [
 	"render-core",
+	"render-hal",
+	"render-hal-mock",
 ]

@@ -1,0 +1,25 @@
+[package]
+name = "render-hal-mock"
+version = "0.1.0"
+authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
+keywords = ["rust", "render", "gfx", "graphics", "hal", "3d", "directx", "direct3d", "d3d", "dx12", "directx12", "vulkan", "vk", "metal"]
+homepage = "https://github.com/gwihlidal/render-hal-rs"
+repository = "https://github.com/gwihlidal/render-hal-rs"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[dependencies]
+render-hal = { path = "../render-hal" }
+render-core = { path = "../render-core" }
+failure = "0.1.6"
+crossbeam-channel = "0.3.9"
+enum_primitive = "0.1.1"
+downcast-rs = "1.1.1"
+smallvec = "1.0.0"
+log = "0.4"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+test = false
+doctest = false

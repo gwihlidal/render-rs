@@ -1,0 +1,17 @@
+[package]
+name = "render-hal"
+version = "0.1.0"
+authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
+keywords = ["rust", "render", "gfx", "graphics", "hal", "3d", "directx", "direct3d", "d3d", "dx12", "directx12", "vulkan", "vk", "metal"]
+homepage = "https://github.com/gwihlidal/render-hal-rs"
+repository = "https://github.com/gwihlidal/render-hal-rs"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+edition = "2018"
+
+[dependencies]
+render-core = { path = "../render-core" }
+
+[lib]
+test = false
+doctest = false
