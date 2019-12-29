@@ -1,0 +1,69 @@
+<h1 id="vulkan-sdk-for-mac-release-notes">Vulkan SDK for Mac Release Notes</h1>
+<h2 id="vulkan-sdk-11850-release-notes">Vulkan SDK 1.1.85.0 Release Notes</h2>
+<h5 id="version-11850-for-mac">Version 1.1.85.0 for Mac</h5>
+<h6 id="october-4-2018">October 4, 2018</h6>
+<p>This SDK supports Vulkan API revision 1.1.85 on macOS (MoltenVK subset) and provides partial Vulkan support though the use of the MoltenVK library which is a &quot;translation&quot; or &quot;porting&quot; library that maps most of the Vulkan functionality to the underlying graphics support on macOS and iOS platforms. Please see the <a href="https://github.com/KhronosGroup/MoltenVK/tree/master/Docs">MoltenVK Runtime User Guide</a> on the MoltenVK GitHub for more information. The prior SDK supported Vulkan API revision 1.1.82 (MoltenVK subset).</p>
+<p>Much of the documentation for this SDK is contained in the Getting Started Guide, found in the <code>Documentation</code> folder in this SDK and on the <a href="https://vulkan.lunarg.com">LunarXchange website</a>.</p>
+<h3 id="overview-of-new-features-in-sdk-11850">Overview of new features in SDK 1.1.85.0</h3>
+<ul>
+<li>On September 19, 2018, NVIDIA released new Vulkan extensions to support their Turing architecture. These new extensions are supported and covered by Vulkan validation layers and the SPIR-V toolchain.</li>
+<li>Since the release of SDK 1.1.82.1, the following extensions have been added to the Vulkan spec and may be supported by a Vulkan device. To query the extensions available to a given physical device, call <code>vkEnumerateDeviceExtensionProperties()</code> or contact the hardware vendor.</li>
+</ul>
+<pre><code>    VK_EXT_astc_decode_mode
+    VK_EXT_inline_uniform_block
+    VK_KHR_vulkan_memory_model
+    VK_NV_compute_shader_derivatives
+    VK_NV_corner_sampled_image
+    VK_NV_fragment_shader_barycentric
+    VK_NV_mesh_shader
+    VK_NV_representative_fragment_test
+    VK_NV_scissor_exclusive
+    VK_NV_shader_image_footprint
+    VK_NV_shading_rate_image
+    VK_NVX_raytracing
+</code></pre>
+<ul>
+<li>VUID validation coverage documentation is now included in the LunarG Vulkan SDK. This documentation (<code>validation_error_database.csv</code> and an HTML version) has been updated to represent the validation layer VUID coverage status as of this 1.1.85.0 SDK. <code>validation_error_database.csv</code> can be found locally in the SDK <code>Documentation</code> directory once the SDK is installed on the system. A spreadsheet editor can then be used to sort and view the data. Additionally, an HTML version of the validation error database can be found <a href="./validation_error_database.html">here</a>.</li>
+<li>Bug fixes (see the <a href="#sdk-components">SDK Components</a> section below)</li>
+<li>Improved validation coverage</li>
+</ul>
+<h3 id="outside-contributors">Outside Contributors</h3>
+<p>LunarG would like to thank the following Vulkan Ecosystem Developers for their contributions to this SDK:</p>
+<ul>
+<li>Zhirnov Andrey</li>
+<li>Pat Brown</li>
+<li>Bill Hollings</li>
+<li>Petr Kraus</li>
+<li>Justus Wang</li>
+</ul>
+<h3 id="sdk-components">SDK Components</h3>
+<p>This version of the SDK is based on the following specifications, source code repositories, commits, and issue resolutions:</p>
+<ul>
+<li><a href="https://www.khronos.org/registry/vulkan">Vulkan Specification</a> including extensions</li>
+<li><a href="https://www.khronos.org/registry/spir-v/">SPIR-V Specification</a> version 1.3</li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/glslang/commit/e99a26810f65314183163c07664a40e05647c15f">Glslang library and tools</a></li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-Headers/tree/sdk-1.1.85">KhronosGroup/Vulkan-Headers</a>, Version Tag: sdk-1.1.85.0</li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-Loader/tree/sdk-1.1.85">KhronosGroup/Vulkan-Loader</a>, Commit ID: 98d5fac6c461959e64bdbe27c710a93215147dd1</li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-Tools/tree/sdk-1.1.85">KhronosGroup/Vulkan-Tools</a>, Version Tag: sdk-1.1.85.0</li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers/tree/sdk-1.1.85">KhronosGroup/Vulkan-ValidationLayers</a>, Version Tag: sdk-1.1.85.0</li>
+<li>GitHub Repo: <a href="https://github.com/LunarG/VulkanSamples/tree/sdk-1.1.85">LunarG/VulkanSamples</a>, Version Tag: sdk-1.1.85.0</li>
+<li>GitHub Repo: <a href="https://github.com/LunarG/VulkanTools/tree/sdk-1.1.85">LunarG/VulkanTools</a>, Version Tag: sdk-1.1.85.0</li>
+</ul>
+<h4 id="sdk-component-change-and-issue-information">SDK Component Change and Issue Information</h4>
+<ul>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-Loader/tree/sdk-1.1.85">KhronosGroup/Vulkan-Loader</a>: <a href="https://github.com/KhronosGroup/Vulkan-Loader/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aclosed+milestone%3Asdk-1.1.85.0">Fixed Github Issues</a>, <a href="https://github.com/KhronosGroup/Vulkan-Loader/issues">Known Issues</a></li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-Tools/tree/sdk-1.1.85">KhronosGroup/Vulkan-Tools</a>: <a href="https://github.com/KhronosGroup/Vulkan-Tools/issues?q=is%3Aissue+is%3Aclosed+closed%3A%3E2018-04-18+milestone%3Asdk-1.1.85.0">Fixed Github Issues</a>, <a href="https://github.com/KhronosGroup/Vulkan-Tools/issues">Known Issues</a></li>
+<li>GitHub Repo: <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers/tree/sdk-1.1.85">KhronosGroup/Vulkan-ValidationLayers</a>: <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues?q=is%3Aissue+is%3Aclosed+milestone%3Asdk-1.1.85.0">Fixed Github Issues</a>, <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers/issues">Known Issues</a></li>
+<li>GitHub Repo: <a href="https://github.com/LunarG/VulkanSamples/tree/sdk-1.1.85">LunarG/VulkanSamples</a>: <a href="https://github.com/LunarG/VulkanSamples/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aclosed+milestone%3Asdk-1.1.85.0">Fixed Github Issues</a>, <a href="https://github.com/LunarG/VulkanSamples/issues">Known Issues</a></li>
+<li>GitHub Repo: <a href="https://github.com/LunarG/VulkanTools/tree/sdk-1.1.85">LunarG/VulkanTools</a>: <a href="https://github.com/LunarG/VulkanTools/issues?utf8=%E2%9C%93&amp;q=is%3Aissue+is%3Aclosed+milestone%3Asdk-1.1.85.0">Fixed Github Issues</a>, <a href="https://github.com/LunarG/VulkanTools/issues">Known Issues</a></li>
+</ul>
+<h3 id="developer-notes">Developer Notes</h3>
+<ul>
+<li>In the next Vulkan SDK release, <code>cube</code> and <code>via</code> will be renamed <code>vkcube</code> and <code>vkvia</code> respectively. SDK 1.1.85.0 will be the final Vulkan SDK to employ the names <code>cube</code> and <code>via</code>.</li>
+<li>The standard Khronos validation layers have been migrated to use the canonical Vulkan VUID values, which are strings in the form of &quot;<code>VUID-vkCmdBlitImage-filter-00236</code>&quot;. In doing so, the old integer-based enumerated values have been phased out and are no longer returned by <code>log_msg()</code> calls.
+<ul>
+<li>Developers keying on these returned values for their development should use the map in the <code>vk_validation_error_messages.h</code> file to obtain the matching Vulkan VUIDs when performing their updates. This file can be found in the <a href="https://github.com/KhronosGroup/Vulkan-ValidationLayers/tree/master/layers">layers directory of the Vulkan-ValidationLayers</a> GitHub repository.</li>
+</ul></li>
+</ul>
+<h3 id="known-issues">Known Issues</h3>
+<p>None</p>
