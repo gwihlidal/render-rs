@@ -1,5 +1,5 @@
 [package]
-name = "render-hal-mock"
+name = "render-hal-dx12"
 version = "0.1.0"
 authors = ["Graham Wihlidal <graham@wihlidal.ca>"]
 keywords = ["rust", "render", "gfx", "graphics", "hal", "3d", "directx", "direct3d", "d3d", "dx12", "directx12", "vulkan", "vk", "metal"]
@@ -18,6 +18,11 @@ enum_primitive = "0.1.1"
 downcast-rs = "1.1.1"
 smallvec = "1.1.0"
 log = "0.4"
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["basetsd", "d3d12", "d3d12sdklayers", "d3d12shader", "d3dcommon", "d3dcompiler", "dxgi1_2", "dxgi1_3", "dxgi1_4", "dxgiformat", "dxgitype", "handleapi", "minwindef", "synchapi", "unknwnbase", "winbase", "windef", "winerror", "winnt", "winuser"] }
+redirect = "0.3.0"
+renderdoc = "0.7.1"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

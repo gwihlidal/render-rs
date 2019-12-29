@@ -2,5 +2,8 @@
 members = [
 	"render-core",
 	"render-hal",
+	#"render-hal-dx12",
 	"render-hal-mock",
+	#"render-hal-mtl",
+	#"render-hal-vk",
 ]
