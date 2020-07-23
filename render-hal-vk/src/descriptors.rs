@@ -141,13 +141,13 @@ pub fn merge_descriptor_set_layouts(
 
 pub struct DescriptorSetCache {
     pub logical_device: Arc<Device>,
-    pub storage: Arc<RenderResourceStorage<Box<RenderResourceBase>>>,
+    pub storage: Arc<RenderResourceStorage<Box<dyn RenderResourceBase>>>,
 }
 
 impl DescriptorSetCache {
     pub fn new(
         device: Arc<Device>,
-        storage: Arc<RenderResourceStorage<Box<RenderResourceBase>>>,
+        storage: Arc<RenderResourceStorage<Box<dyn RenderResourceBase>>>,
     ) -> Self {
         Self {
             logical_device: device,

@@ -4,8 +4,8 @@ use crate::types::{
     RenderViewDimension, RENDERCHANNELFORMAT_COUNT, RENDERFORMAT_COUNT, RENDERNUMERICFORMAT_COUNT,
 };
 use crate::utilities::align_forward;
-use enum_count::EnumCount;
 use enum_primitive::FromPrimitive;
+use strum::EnumCount;
 
 impl Into<RenderChannelFormat> for RenderFormat {
     fn into(self) -> RenderChannelFormat {

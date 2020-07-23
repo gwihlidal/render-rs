@@ -44,7 +44,7 @@ struct RenderBufferBarrier {
 pub struct RenderCompileContext {
     device: Arc<RawDevice>,
     descriptor_cache: Arc<DescriptorSetCache>,
-    storage: Arc<RenderResourceStorage<Box<RenderResourceBase>>>,
+    storage: Arc<RenderResourceStorage<Box<dyn RenderResourceBase>>>,
     queue: Arc<RwLock<ash::vk::Queue>>,
     draw_state: RenderDrawState,
     cached_draw_state: Option<RenderDrawState>,
@@ -52,7 +52,7 @@ pub struct RenderCompileContext {
     cached_scissor: RenderScissorRect,
     cached_stencil_ref: u8,
     command_buffer: Option<Arc<ash::vk::CommandBuffer>>,
-    active_render_pass: Option<Arc<RwLock<Box<RenderResourceBase>>>>,
+    active_render_pass: Option<Arc<RwLock<Box<dyn RenderResourceBase>>>>,
     resource_tracker: RefCell<HashMap<RenderResourceHandle, RenderResourceStates>>,
     pending_image_barriers: HashMap<RenderResourceHandle, RenderImageBarrier>,
     pending_buffer_barriers: HashMap<RenderResourceHandle, RenderBufferBarrier>,
@@ -62,7 +62,7 @@ impl RenderCompileContext {
     pub fn new(
         device: Arc<RawDevice>,
         descriptor_cache: Arc<DescriptorSetCache>,
-        storage: Arc<RenderResourceStorage<Box<RenderResourceBase>>>,
+        storage: Arc<RenderResourceStorage<Box<dyn RenderResourceBase>>>,
         queue: Arc<RwLock<ash::vk::Queue>>,
     ) -> Self {
         RenderCompileContext {
@@ -190,8 +190,8 @@ impl RenderCompileContext {
     }
 
     #[inline(always)]
-    fn draw(&mut self, native: ash::vk::CommandBuffer, command: &RenderCommand) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+    fn draw(&mut self, native: ash::vk::CommandBuffer, command: &dyn RenderCommand) -> Result<()> {
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandDraw;
         let typed_command = unsafe { &*typed_command_ptr };
         let pipeline_state = self.storage.get(typed_command.pipeline_state)?;
@@ -266,18 +266,22 @@ impl RenderCompileContext {
     fn draw_indirect(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling draw_indirect - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandDrawIndirect;
         let typed_command = unsafe { &*typed_command_ptr };
         Ok(())
     }
 
     #[inline]
-    fn dispatch(&mut self, native: ash::vk::CommandBuffer, command: &RenderCommand) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+    fn dispatch(
+        &mut self,
+        native: ash::vk::CommandBuffer,
+        command: &dyn RenderCommand,
+    ) -> Result<()> {
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandDispatch;
         let typed_command = unsafe { &*typed_command_ptr };
         let pipeline_state = self.storage.get(typed_command.pipeline_state)?;
@@ -309,10 +313,10 @@ impl RenderCompileContext {
     fn dispatch_indirect(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling dispatch_indirect - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandDispatchIndirect;
         let typed_command = unsafe { &*typed_command_ptr };
         let pipeline_state = self.storage.get(typed_command.pipeline_state)?;
@@ -327,10 +331,10 @@ impl RenderCompileContext {
     fn update_buffer(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
         encoder: &RenderCommandList,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandUpdateBuffer;
         let typed_command = unsafe { &*typed_command_ptr };
 
@@ -371,12 +375,12 @@ impl RenderCompileContext {
     fn update_texture(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
         encoder: &RenderCommandList,
     ) -> Result<()> {
         error!("Calling update_texture - unimplemented");
 
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandUpdateTexture;
         let typed_command = unsafe { &*typed_command_ptr };
 
@@ -508,9 +512,9 @@ impl RenderCompileContext {
     fn copy_buffer(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandCopyBuffer;
         let typed_command = unsafe { &*typed_command_ptr };
 
@@ -554,9 +558,9 @@ impl RenderCompileContext {
     fn copy_texture(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandCopyTexture;
         let typed_command = unsafe { &*typed_command_ptr };
 
@@ -630,8 +634,12 @@ impl RenderCompileContext {
     }
 
     #[inline]
-    fn barriers(&mut self, native: ash::vk::CommandBuffer, command: &RenderCommand) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+    fn barriers(
+        &mut self,
+        native: ash::vk::CommandBuffer,
+        command: &dyn RenderCommand,
+    ) -> Result<()> {
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandBarriers;
         let typed_command = unsafe { &*typed_command_ptr };
         if typed_command.barriers.len() > 0 {
@@ -647,9 +655,9 @@ impl RenderCompileContext {
     fn transitions(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandTransitions;
         let typed_command = unsafe { &*typed_command_ptr };
         if typed_command.transitions.len() > 0 {
@@ -665,10 +673,10 @@ impl RenderCompileContext {
     fn begin_timing(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling begin_timing - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandBeginTiming;
         let typed_command = unsafe { &*typed_command_ptr };
         // TODO
@@ -679,10 +687,10 @@ impl RenderCompileContext {
     fn end_timing(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling end_timing - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandEndTiming;
         let typed_command = unsafe { &*typed_command_ptr };
         // TODO
@@ -693,10 +701,10 @@ impl RenderCompileContext {
     fn resolve_timings(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling resolve_timings - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandResolveTimings;
         let typed_command = unsafe { &*typed_command_ptr };
         // TODO
@@ -707,10 +715,10 @@ impl RenderCompileContext {
     fn begin_event(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         if let Some(ref debug_marker) = self.device.debug_marker {
-            let command_ptr = command as *const RenderCommand;
+            let command_ptr = command as *const dyn RenderCommand;
             let typed_command_ptr = command_ptr as *const RenderCommandBeginEvent;
             let typed_command = unsafe { &*typed_command_ptr };
             let event_str = typed_command.message.as_bytes();
@@ -731,10 +739,10 @@ impl RenderCompileContext {
     fn end_event(
         &mut self,
         native: ash::vk::CommandBuffer,
-        _command: &RenderCommand,
+        _command: &dyn RenderCommand,
     ) -> Result<()> {
         if let Some(ref debug_marker) = self.device.debug_marker {
-            //let command_ptr = command as *const RenderCommand;
+            //let command_ptr = command as *const dyn RenderCommand;
             //let typed_command_ptr = command_ptr as *const RenderCommandEndEvent;
             //let typed_command = unsafe { &*typed_command_ptr };
             unsafe {
@@ -748,9 +756,9 @@ impl RenderCompileContext {
     fn begin_render_pass(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandBeginRenderPass;
         let typed_command = unsafe { &*typed_command_ptr };
 
@@ -842,9 +850,9 @@ impl RenderCompileContext {
     fn end_render_pass(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandEndRenderPass;
         let typed_command = unsafe { &*typed_command_ptr };
         if let Some(active_pass) = self.active_render_pass.clone() {
@@ -885,9 +893,13 @@ impl RenderCompileContext {
     }
 
     #[inline]
-    fn ray_trace(&mut self, native: ash::vk::CommandBuffer, command: &RenderCommand) -> Result<()> {
+    fn ray_trace(
+        &mut self,
+        native: ash::vk::CommandBuffer,
+        command: &dyn RenderCommand,
+    ) -> Result<()> {
         error!("Calling ray_trace - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandRayTrace;
         let typed_command = unsafe { &*typed_command_ptr };
         Ok(())
@@ -897,10 +909,10 @@ impl RenderCompileContext {
     fn update_top_level_acceleration(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling update_top_level_acceleration - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandUpdateTopLevelAcceleration;
         let typed_command = unsafe { &*typed_command_ptr };
         Ok(())
@@ -910,10 +922,10 @@ impl RenderCompileContext {
     fn update_bottom_level_acceleration(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling update_bottom_level_acceleration - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandUpdateBottomLevelAcceleration;
         let typed_command = unsafe { &*typed_command_ptr };
         Ok(())
@@ -923,10 +935,10 @@ impl RenderCompileContext {
     fn update_shader_table(
         &mut self,
         native: ash::vk::CommandBuffer,
-        command: &RenderCommand,
+        command: &dyn RenderCommand,
     ) -> Result<()> {
         error!("Calling update_shader_table - unimplemented");
-        let command_ptr = command as *const RenderCommand;
+        let command_ptr = command as *const dyn RenderCommand;
         let typed_command_ptr = command_ptr as *const RenderCommandUpdateShaderTable;
         let typed_command = unsafe { &*typed_command_ptr };
         Ok(())
@@ -1114,8 +1126,8 @@ impl RenderCompileContext {
             for pending in &self.pending_image_barriers {
                 assert_ne!(pending.1.image, ash::vk::Image::null());
                 let barrier = vk_sync::ImageBarrier {
-                    previous_accesses: vec![pending.1.previous_access],
-                    next_accesses: vec![pending.1.next_access],
+                    previous_accesses: std::slice::from_ref(&pending.1.previous_access),
+                    next_accesses: std::slice::from_ref(&pending.1.next_access),
                     previous_layout: pending.1.previous_layout,
                     next_layout: pending.1.next_layout,
                     discard_contents: false,
@@ -1131,8 +1143,8 @@ impl RenderCompileContext {
             for pending in &self.pending_buffer_barriers {
                 assert_ne!(pending.1.buffer, ash::vk::Buffer::null());
                 let barrier = vk_sync::BufferBarrier {
-                    previous_accesses: vec![pending.1.previous_access],
-                    next_accesses: vec![pending.1.next_access],
+                    previous_accesses: std::slice::from_ref(&pending.1.previous_access),
+                    next_accesses: std::slice::from_ref(&pending.1.next_access),
                     src_queue_family_index: ash::vk::QUEUE_FAMILY_IGNORED,
                     dst_queue_family_index: ash::vk::QUEUE_FAMILY_IGNORED,
                     buffer: pending.1.buffer,
@@ -1142,9 +1154,6 @@ impl RenderCompileContext {
                 buffer_barriers.push(barrier);
             }
 
-            self.pending_image_barriers.clear();
-            self.pending_buffer_barriers.clear();
-
             vk_sync::cmd::pipeline_barrier(
                 &device.device().fp_v1_0(),
                 native,
@@ -1152,6 +1161,9 @@ impl RenderCompileContext {
                 &buffer_barriers, // buffer barriers
                 &image_barriers,  // image barriers
             );
+
+            self.pending_image_barriers.clear();
+            self.pending_buffer_barriers.clear();
         }
     }
 
@@ -1264,7 +1276,7 @@ impl RenderCompileContext {
                 unsafe {
                     self.device.raw.cmd_set_stencil_reference(
                         native,
-                        ash::vk::StencilFaceFlags::STENCIL_FRONT_AND_BACK,
+                        ash::vk::StencilFaceFlags::FRONT_AND_BACK,
                         draw_state.stencil_ref,
                     );
                 }
@@ -1308,7 +1320,7 @@ impl RenderCompileContext {
                     unsafe {
                         self.device.raw.cmd_set_stencil_reference(
                             native,
-                            ash::vk::StencilFaceFlags::STENCIL_FRONT_AND_BACK,
+                            ash::vk::StencilFaceFlags::FRONT_AND_BACK,
                             draw_state.stencil_ref,
                         );
                     }

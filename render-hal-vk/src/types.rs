@@ -265,11 +265,11 @@ pub struct RenderFrameBindingSetVk {
     pub desc: RenderFrameBindingSetDesc,
     pub render_target_handles: [Option<RenderResourceHandle>; MAX_RENDER_TARGET_COUNT],
     pub render_target_resources:
-        [Option<Arc<RwLock<Box<RenderResourceBase>>>>; MAX_RENDER_TARGET_COUNT], // TODO: Use explicit RenderTextureVk?
+        [Option<Arc<RwLock<Box<dyn RenderResourceBase>>>>; MAX_RENDER_TARGET_COUNT], // TODO: Use explicit RenderTextureVk?
     pub depth_stencil_handle: Option<RenderResourceHandle>,
-    pub depth_stencil_resource: Option<Arc<RwLock<Box<RenderResourceBase>>>>, // TODO: Use explicit RenderTextureVk?
+    pub depth_stencil_resource: Option<Arc<RwLock<Box<dyn RenderResourceBase>>>>, // TODO: Use explicit RenderTextureVk?
     pub image_views: Vec<ash::vk::ImageView>, // color views + depth views at the end
-    pub swap_chain: Option<Arc<RwLock<Box<RenderResourceBase>>>>, // TODO: Use explicit RenderSwapChainVk?
+    pub swap_chain: Option<Arc<RwLock<Box<dyn RenderResourceBase>>>>, // TODO: Use explicit RenderSwapChainVk?
     pub frame_buffer_info: ash::vk::FramebufferCreateInfo,
     pub render_target_count: u32,
 }
@@ -292,7 +292,7 @@ pub struct RenderPassVk {
     pub desc: RenderPassDesc,
     pub render_pass: ash::vk::RenderPass,
     pub frame_buffer: ash::vk::Framebuffer,
-    pub frame_binding: Arc<RwLock<Box<RenderResourceBase>>>, // TODO: Use explicit RenderFrameBindingSetVk?
+    pub frame_binding: Arc<RwLock<Box<dyn RenderResourceBase>>>, // TODO: Use explicit RenderFrameBindingSetVk?
     pub depth_stencil_layout: ash::vk::ImageLayout,
     pub clear_values: Vec<ash::vk::ClearValue>,
 }

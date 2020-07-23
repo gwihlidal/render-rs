@@ -3,9 +3,9 @@
 use crate::constants::*;
 pub use crate::handles::RenderResourceHandle;
 use crate::state::*;
-use enum_count::EnumCount;
 use std::cmp;
 use std::slice::Iter;
+use strum::EnumCount;
 use winit;
 
 pub type RenderTransitionRecord = (RenderResourceHandle, RenderResourceStates);
@@ -359,7 +359,7 @@ impl RenderResourceType {
             RenderResourceType::Fence,
             RenderResourceType::TimingHeap,
         ];
-        TYPES.into_iter()
+        TYPES.iter()
     }
 }
 

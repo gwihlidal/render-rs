@@ -43,7 +43,7 @@ pub(crate) struct RenderBackendVk {
     adapters: Vec<Arc<PhysicalDevice>>,
     device_info: Vec<RenderDeviceInfo>,
     device_map: HashMap<u32, u32>,
-    devices: Vec<Arc<RwLock<Option<Box<RenderDevice>>>>>,
+    devices: Vec<Arc<RwLock<Option<Box<dyn RenderDevice>>>>>,
 }
 
 impl fmt::Debug for RenderBackendVk {
@@ -162,7 +162,7 @@ impl RenderBackendVk {
 
             InstanceConfig {
                 app_name: "render-hal-vk".into(),
-                app_version: vk_make_version!(1, 0, 0),
+                app_version: vk::make_version(1, 0, 0),
                 layers: layers.iter().map(|layer| layer.name.into()).collect(),
                 //layers: explicit_layers,
                 extensions: explicit_extensions,
@@ -303,7 +303,7 @@ impl RenderBackend for RenderBackendVk {
     fn get_device(
         &self,
         device_id: RenderDeviceId,
-    ) -> Result<Arc<RwLock<Option<Box<RenderDevice>>>>> {
+    ) -> Result<Arc<RwLock<Option<Box<dyn RenderDevice>>>>> {
         let device_index = device_id as usize;
         if device_index >= self.devices.len() {
             Err(Error::backend(format!(

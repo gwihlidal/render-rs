@@ -114,7 +114,7 @@ pub struct RenderDeviceVk {
     logical_device: Arc<RawDevice>,
     frames: Arc<RwLock<RenderDeviceFrames>>,
     swap_chain_loader: Arc<ash::extensions::khr::Swapchain>,
-    storage: Arc<RenderResourceStorage<Box<RenderResourceBase>>>,
+    storage: Arc<RenderResourceStorage<Box<dyn RenderResourceBase>>>,
     queue_info: [CreateQueueFamily; MAX_RENDER_QUEUES],
     //command_queues: [Option<RenderCommandQueueVk>; MAX_RENDER_QUEUES],
     command_queues: [Option<Arc<RwLock<ash::vk::Queue>>>; MAX_RENDER_QUEUES],
@@ -894,7 +894,7 @@ impl RenderDevice for RenderDeviceVk {
                 .unwrap()
         };
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderSwapChainVk {
                 name: debug_name.to_string().into(),
                 swap_chain,
@@ -1024,7 +1024,7 @@ impl RenderDevice for RenderDeviceVk {
             }
         }
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderBufferVk {
                 name: debug_name.to_string().into(),
                 desc: desc.clone(),
@@ -1115,8 +1115,8 @@ impl RenderDevice for RenderDeviceVk {
             .unwrap();
 
         let pre_write_barrier = vk_sync::ImageBarrier {
-            previous_accesses: vec![vk_sync::AccessType::Nothing],
-            next_accesses: vec![vk_sync::AccessType::TransferWrite],
+            previous_accesses: &[vk_sync::AccessType::Nothing],
+            next_accesses: &[vk_sync::AccessType::TransferWrite],
             previous_layout: vk_sync::ImageLayout::General,
             next_layout: vk_sync::ImageLayout::Optimal,
             discard_contents: true,
@@ -1127,8 +1127,8 @@ impl RenderDevice for RenderDeviceVk {
         };
 
         let post_write_barrier = vk_sync::ImageBarrier {
-            previous_accesses: vec![vk_sync::AccessType::TransferWrite],
-            next_accesses: vec![vk_sync::AccessType::General],
+            previous_accesses: &[vk_sync::AccessType::TransferWrite],
+            next_accesses: &[vk_sync::AccessType::General],
             previous_layout: vk_sync::ImageLayout::Optimal,
             next_layout: vk_sync::ImageLayout::Optimal,
             discard_contents: false,
@@ -1289,7 +1289,7 @@ impl RenderDevice for RenderDeviceVk {
             )?;
         }
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderTextureVk {
                 name: debug_name.to_string().into(),
                 desc: desc.clone(),
@@ -1316,7 +1316,7 @@ impl RenderDevice for RenderDeviceVk {
         let create_info = make_vulkan_sampler(desc);
         let sampler = unsafe { raw_device.create_sampler(&create_info, None).unwrap() };
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderSamplerStateVk {
                 name: debug_name.to_string().into(),
                 sampler,
@@ -1522,7 +1522,7 @@ impl RenderDevice for RenderDeviceVk {
                 let shader_module = unsafe { raw_device.create_shader_module(&shader_info, None) };
                 match shader_module {
                     Ok(module) => {
-                        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+                        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
                             Arc::new(RwLock::new(Box::new(RenderShaderVk {
                                 name: debug_name.to_string().into(),
                                 module,
@@ -1744,7 +1744,7 @@ impl RenderDevice for RenderDeviceVk {
             });
         }
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderShaderViewsVk {
                 name: debug_name.to_string().into(),
                 srvs,
@@ -2289,7 +2289,7 @@ impl RenderDevice for RenderDeviceVk {
         };
         let pipeline = pipelines[0];
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderGraphicsPipelineStateVk {
                 name: debug_name.to_string().into(),
                 data,
@@ -2365,7 +2365,7 @@ impl RenderDevice for RenderDeviceVk {
             }
         }
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderDrawBindingSetVk {
                 name: debug_name.to_string().into(),
                 desc: desc.clone(),
@@ -2579,7 +2579,8 @@ impl RenderDevice for RenderDeviceVk {
 
         //info!("Created frame binding: {:?}", frame_binding);
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> = Arc::new(RwLock::new(frame_binding));
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
+            Arc::new(RwLock::new(frame_binding));
         self.storage.put(handle, resource)?;
         Ok(())
     }
@@ -2811,7 +2812,7 @@ impl RenderDevice for RenderDeviceVk {
 
         trace!("Created render pass: {:?}", render_pass);
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> = Arc::new(RwLock::new(render_pass));
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> = Arc::new(RwLock::new(render_pass));
         self.storage.put(handle, resource)?;
         Ok(())
     }
@@ -2831,7 +2832,8 @@ impl RenderDevice for RenderDeviceVk {
             debug_name.into(),
         ));
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> = Arc::new(RwLock::new(command_list));
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
+            Arc::new(RwLock::new(command_list));
         self.storage.put(handle, resource)?;
         Ok(())
     }
@@ -2858,7 +2860,7 @@ impl RenderDevice for RenderDeviceVk {
                 .expect("create fence failed.")
         };
 
-        let resource: Arc<RwLock<Box<RenderResourceBase>>> =
+        let resource: Arc<RwLock<Box<dyn RenderResourceBase>>> =
             Arc::new(RwLock::new(Box::new(RenderFenceVk {
                 name: debug_name.to_string().into(),
                 fence,
@@ -3054,8 +3056,8 @@ impl RenderDevice for RenderDeviceVk {
 
                 // Source Image: <Unknown> -> Copy Source
                 let src_to_copy = vk_sync::ImageBarrier {
-                    previous_accesses: vec![src_before_access.clone()],
-                    next_accesses: vec![vk_sync::AccessType::TransferRead],
+                    previous_accesses: &[src_before_access.clone()],
+                    next_accesses: &[vk_sync::AccessType::TransferRead],
                     previous_layout: src_before_layout.clone(),
                     next_layout: vk_sync::ImageLayout::Optimal,
                     discard_contents: false,
@@ -3080,8 +3082,8 @@ impl RenderDevice for RenderDeviceVk {
 
                 // SwapChain Image: Undefined -> Copy Dest
                 let swap_to_copy = vk_sync::ImageBarrier {
-                    previous_accesses: vec![vk_sync::AccessType::Nothing],
-                    next_accesses: vec![vk_sync::AccessType::TransferWrite],
+                    previous_accesses: &[vk_sync::AccessType::Nothing],
+                    next_accesses: &[vk_sync::AccessType::TransferWrite],
                     previous_layout: vk_sync::ImageLayout::General,
                     next_layout: vk_sync::ImageLayout::Optimal,
                     discard_contents: true,
@@ -3150,8 +3152,8 @@ impl RenderDevice for RenderDeviceVk {
 
                 // Source Image: Copy Source -> <Unknown>
                 let copy_to_src = vk_sync::ImageBarrier {
-                    previous_accesses: vec![vk_sync::AccessType::TransferRead],
-                    next_accesses: vec![src_before_access.clone()],
+                    previous_accesses: &[vk_sync::AccessType::TransferRead],
+                    next_accesses: &[src_before_access.clone()],
                     previous_layout: vk_sync::ImageLayout::Optimal,
                     next_layout: src_before_layout.clone(),
                     discard_contents: false,
@@ -3176,8 +3178,8 @@ impl RenderDevice for RenderDeviceVk {
 
                 // SwapChain Image: Copy Dest -> Present
                 let copy_to_swap = vk_sync::ImageBarrier {
-                    previous_accesses: vec![vk_sync::AccessType::TransferWrite],
-                    next_accesses: vec![vk_sync::AccessType::Present],
+                    previous_accesses: &[vk_sync::AccessType::TransferWrite],
+                    next_accesses: &[vk_sync::AccessType::Present],
                     previous_layout: vk_sync::ImageLayout::Optimal,
                     next_layout: vk_sync::ImageLayout::General,
                     discard_contents: false,

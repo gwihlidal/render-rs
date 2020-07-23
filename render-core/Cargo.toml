@@ -24,8 +24,8 @@ winit = "0.19.3"
 log = "0.4"
 fern = { version = "0.5.8", features = ["colored"] }
 chrono = "0.4.9"
-enum-count = { git = 'https://github.com/gwihlidal/enum-count' }
-enum-count-derive = { git = 'https://github.com/gwihlidal/enum-count-derive' }
+strum = "0.18"
+strum_macros = "0.18.0"
 
 [lib]
 doctest = false

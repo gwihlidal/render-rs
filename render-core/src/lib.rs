@@ -18,7 +18,7 @@ extern crate glob;
 extern crate libloading;
 extern crate winit;
 #[macro_use]
-extern crate enum_count;
+extern crate strum_macros;
 #[macro_use]
 extern crate log;
 extern crate chrono;
