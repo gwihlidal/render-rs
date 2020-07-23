@@ -77,11 +77,7 @@ pub enum InstanceError {
 
 impl InstanceError {
     pub(crate) fn from_loading_error(error: ash::LoadingError) -> Self {
-        match error {
-            ash::LoadingError::LibraryLoadError(name) => InstanceError::LibraryLoadError(name),
-            //ash::LoadingError::EntryLoadError(names) => InstanceError::LoadError(names),
-            //ash::LoadingError::StaticLoadError(names) => InstanceError::LoadError(names),
-        }
+        InstanceError::LibraryLoadError(format!("{}", error))
     }
 
     pub(crate) fn from_instance_error(error: ash::InstanceError) -> Self {
