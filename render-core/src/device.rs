@@ -332,7 +332,7 @@ impl RenderDeviceGroup {
         }
     }
 
-    /*pub fn call_mut(&self, func: impl Fn(&mut Box<RenderDevice>)) {
+    /*pub fn call_mut(&self, func: impl Fn(&mut Box<dyn RenderDevice>)) {
         let mut primary = self.primary.write();
         match primary {
             Ok(device) => match *device {

@@ -46,7 +46,7 @@ pub fn align_ptr_forward(ptr: *mut u8, align: usize) -> *mut u8 {
 /// Aligns an offset forward to the next value aligned with `align`.
 #[inline(always)]
 pub fn align_forward(offset: usize, align: usize) -> usize {
-    ((offset + align - 1) & !(align - 1))
+    (offset + align - 1) & !(align - 1)
 }
 
 /// Checks if an offset is aligned with 'align'.

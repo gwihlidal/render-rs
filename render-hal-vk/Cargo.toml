@@ -12,7 +12,7 @@ edition = "2018"
 [dependencies]
 render-hal = { path = "../render-hal" }
 render-core = { path = "../render-core" }
-ash = "0.29"
+ash = "0.31"
 failure = "0.1.6"
 relevant = "0.4.2"
 log = "0.4"
@@ -22,8 +22,8 @@ crossbeam-channel = "0.4.0"
 smallvec = "1.1.0"
 enum_primitive = "0.1.1"
 downcast-rs = "1.1.1"
-vk-sync = "0.1.6"
-vk-mem = "0.2.0"
+vk-sync = { git = "https://github.com/zedrian/vk-sync-rs.git", rev = "e28c05d" }
+vk-mem = "0.2.2"
 spirv-reflect = "0.2.3"
 num-traits = "0.2.10"
 meowhash = "0.1.2"

@@ -5,5 +5,5 @@ members = [
 	#"render-hal-dx12",
 	"render-hal-mock",
 	#"render-hal-mtl",
-	#"render-hal-vk",
+	"render-hal-vk",
 ]

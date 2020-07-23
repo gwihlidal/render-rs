@@ -1,11 +1,11 @@
 #![allow(dead_code)]
 
 use crate::types::RenderResourceType;
-use enum_count::EnumCount;
 use enum_primitive::FromPrimitive;
 use std::collections::VecDeque;
 use std::hash::{Hash, Hasher};
 use std::ops::{Shl, Shr};
+use strum::EnumCount;
 
 type RenderResourceId = u16;
 type RenderResourceCookie = u16;

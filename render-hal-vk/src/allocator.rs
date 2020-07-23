@@ -11,7 +11,7 @@ struct ResourceBlock {
     allocation: vk_mem::Allocation,
     allocation_info: vk_mem::AllocationInfo,
     current_offset: usize,
-    allocation_count: usize,
+    //allocation_count: usize,
 }
 
 pub struct HostLinearAllocation {
@@ -193,7 +193,7 @@ impl HostLinearAllocator {
             allocation,
             allocation_info,
             current_offset: 0,
-            allocation_count: 0,
+            //allocation_count: 0,
         }
     }
 }

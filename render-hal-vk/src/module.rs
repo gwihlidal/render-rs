@@ -23,7 +23,7 @@ impl RenderBackendModule for RenderBackendModuleVk {
         "vk"
     }
 
-    fn create(&self) -> Box<RenderBackend> {
+    fn create(&self) -> Box<dyn RenderBackend> {
         // TODO: Proper result here
         let backend = RenderBackendVk::new();
         match backend {

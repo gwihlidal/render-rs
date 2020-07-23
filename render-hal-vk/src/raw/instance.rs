@@ -199,8 +199,8 @@ impl Instance {
                 p_next: ptr::null(),
                 application_version: config.app_version,
                 p_engine_name: engine_name.as_ptr(),
-                engine_version: vk_make_version!(1, 0, 0),
-                api_version: vk_make_version!(1, 0, 36),
+                engine_version: ash::vk::make_version(1, 0, 0),
+                api_version: ash::vk::make_version(1, 0, 36),
             };
 
             let layers: Vec<CString> = config
