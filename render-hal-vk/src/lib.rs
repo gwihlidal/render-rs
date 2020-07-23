@@ -72,6 +72,6 @@ mod shader_views;
 mod types;
 
 #[no_mangle]
-pub extern "C" fn render_backend_factory() -> Box<RenderBackendModule> {
+pub extern "C" fn render_backend_factory() -> Box<dyn RenderBackendModule> {
     Box::new(RenderBackendModuleVk::new())
 }
